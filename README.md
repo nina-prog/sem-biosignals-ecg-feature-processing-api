@@ -2,7 +2,23 @@
 (Fast)API Pipeline for the processing of heart rate data from raw ECG signals towards HRV features.
 
 # Repo Structure
+````
+📦sem-biosignals-ecg-feature-processing-api 
+ ┣ 📂data                    <-- Data used as input during development with Jupyter notebooks. 
+ ┣ 📂docker                  <-- Folder containing the docker files.
+ ┃ ┗ 📜Dockerfile
+ ┣ 📂models                  <-- Saved models during Development.
+ ┣ 📂notebooks               <-- Jupyter Notebooks used in development.
+ ┣ 📂src                     <-- The customized project packages containing all utility functions and source codes.
+ ┣ 📜.gitignore 
+ ┣ 📜main.py                 <-- The final FastAPI App. 
+ ┣ 📜README.md               <-- The top-level README for developers using this project. 
+ ┗ 📜requirenments.txt       <-- The requirenments file for reproducing the environment, e.g. generated with 
+                                 'pip freeze > requirenments.txt'.
+````
 
+# Pipeline Framework
+*...TBD...Description about using FAstAPI...*
 
 # Pipeline Description
 Short Overview:
