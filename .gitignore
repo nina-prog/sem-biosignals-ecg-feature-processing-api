@@ -1,5 +1,6 @@
 # data
-data/raw/
+# exclude everything
+data/raw/*
 
 # IDE
 .idea/
