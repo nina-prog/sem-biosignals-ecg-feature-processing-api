@@ -1,3 +1,6 @@
+# data
+data/raw/
+
 # IDE
 .idea/
 # Byte-compiled / optimized / DLL files

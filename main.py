@@ -30,6 +30,7 @@ class ECGSample(BaseModel):
             }
         }
 
+    # NOTE: label not relevant, TBD
     @validator('label', pre=True, always=True)
     def set_label_default(cls, v, values):
         """
@@ -48,18 +49,18 @@ class ECGSample(BaseModel):
     @root_validator()
     def check_length(cls, values):
         """
-        Validates that all given lists have the same length.
+        Validates that given lists have the same length.
         :param values: The input values that have already been validated.
         :type values: dict[str, Any]
         :return: The validated input values.
         :rtype: dict[str, Any]
         :raises ValueError: If any of the input lists have different lengths.
         """
-        timestamp_idx, ecg, label = values.get("timestamp_idx", []), values.get("ecg", []), values.get("label", [])
-        lengths = set(len(lst) for lst in [timestamp_idx, ecg, label])
+        timestamp_idx, ecg = values.get("timestamp_idx", []), values.get("ecg", [])
+        lengths = set(len(lst) for lst in [timestamp_idx, ecg])
         print(lengths)
         if len(lengths) != 1:
-            raise ValueError('All given lists must have the same length!')
+            raise ValueError('Given timestamp and ecg list must have the same length!')
         return values
 
 
