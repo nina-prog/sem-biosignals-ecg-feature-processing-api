@@ -1,16 +1,49 @@
 # sem-biosignals-ecg-feature-processing-api
 (Fast)API Pipeline for the processing of heart rate data from raw ECG signals towards HRV features.
 
+To-Do
+---
+* [ ] Eigene Daten testen 
+* [ ] Pipeline in FastAPI überführen und Funktionen kapseln
+* [ ] „Windows schneiden“ Ablauf 
+* [ ] Weitere Feature ausprobieren 
+* [ ] Kommentare vervollständigen (wenn noch nicht vorhanden)
+---
+* [ ] Add description of the output data
+* [ ] Add description of the pipeline framework
+* [ ] Add description of the pipeline documentation
+* [ ] Add description of the pipeline references
+* [ ] Add description of the pipeline authors
+* [ ] Add description of the pipeline license
+* [ ] Add description of the pipeline contact
+---
+
+# Table of Contents
+1. [Repo Structure](#repo-structure)
+2. [Pipeline Framework](#pipeline-framework)
+3. [Pipeline Description](#pipeline-description)
+    1. [Input Data Form](#input-data-form)
+    2. [Output Data Form](#output-data-form)
+4. [Requirements](#requirenments)
+5. [Setup and Usage](#setup-and-usage)
+6. [Tutorial](#tutorial)
+8. [Outlook](#outlook)
+9. [Documentation](#documentation)
+10. [References](#references)
+11. [Authors](#authors)
+12. [License](#license)
+13. [Contact](#contact)
+
 # Repo Structure
 ````
 📦sem-biosignals-ecg-feature-processing-api 
  ┣ 📂data                    <-- Data used as input during development with Jupyter notebooks. 
  ┣ 📂docker                  <-- Folder containing the docker files.
- ┃ ┗ 📜Dockerfile
+ ┃ ┗ 📜Dockerfile            <-- Dockerfile for building the docker image.
  ┣ 📂models                  <-- Saved models during Development.
  ┣ 📂notebooks               <-- Jupyter Notebooks used in development.
  ┣ 📂src                     <-- The customized project packages containing all utility functions and source codes.
- ┣ 📜.gitignore 
+ ┣ 📜.gitignore              <-- Gitignore file. 
  ┣ 📜main.py                 <-- The final FastAPI App. 
  ┣ 📜README.md               <-- The top-level README for developers using this project. 
  ┗ 📜requirenments.txt       <-- The requirenments file for reproducing the environment, e.g. generated with 
@@ -21,15 +54,19 @@
 *...TBD...Description about using FAstAPI...*
 
 # Pipeline Description
+This pipeline is designed to process ECG data from raw signals to HRV features. It is implemented as a FastAPI to be 
+used inside an application. However, it is also designed to be possibly be used later on in a web application, where the 
+user can upload ECG data and receive the HRV features. 
+
 Short Overview:
 * Input (plus device): *...TBD...*
 * Output: *...TBD...*
-* Input data form: JSON implementing ECGBatch (see below)
-* Output data form: *...TBD...*
+* Input data form: JSON implementing ECGBatch and ECGSample models. See [below](#input-data-form) for more details. 
+* Output data form: *...TBD...* See [below](#output-data-form) for more details.
 
-## Input Data Form 
+## Input Data Form
 Examples for the Input are implemented in the code and can be seen when running the api via the /docs user interface. 
-However here is an overview of the Input model and its attributes, including their type, constraints and description.
+However, here is an overview of the Input model and its attributes, including their type, constraints and description.
 
 This code defines two Pydantic input models, ECGSample and ECGBatch, for validating and processing data related to 
 electrocardiogram (ECG) biosignals. 
@@ -70,30 +107,81 @@ new example.
 ## Output Data Form
 
 # Requirenments
-...see requirenments.txt
+See in file [requirements.txt](requirements.txt)
 
-# Setup
-Setup via Dockerfile (suggested):
-1. Install Docker[sdfs]
-2. Build Docker Image: Via Software Interface or via Command Line 
-   * Software Interface:
+# Setup and Usage
+**Setup via Dockerfile (suggested)**
+1. Install [Docker](https://docs.docker.com/engine/install/ubuntu/)
+2. Clone the git repository:
+    ````
+    $ git clone https://github.com/nina-prog/sem-biosignals-ecg-feature-processing-api.git
+    ````
+3. Navigate to the cloned repository:
+    ````
+    $ cd sem-biosignals-ecg-feature-processing-api
+    ````
+2. Build Docker Image: a) Via Software Interface or b) via Command Line 
+   * a) Software Interface:
    * *...TBD (.gif)...*
-   * Command Line: 
-   * ````sudo docker build . diarization````
-3. Start Docker Container: Via Software Interface or vie Command Line
-   * Software Interface:
+   * b) Command Line:
+   * ````
+     $ cd docker
+     $ docker build . diarization
+     ````
+3. Start Docker Container: a) Via Software Interface or b) via Command Line
+   * a) Software Interface:
    * *...TBD (.gif)...*
-   * Command Line:
-     * In foreground: ````sudo docker run -p8000:8000 diarization:latest````
-     * Or in forebackground: ````sudo docker run -d -p8000:8000 diarization:latest````
-4. Check FastAPI Docs ...../docs or .../...
+   * b) Command Line:
+     * In foreground: 
+        ````
+        sudo docker run -p8000:8000 diarization:latest
+       ````
+     * Or in forebackground: 
+       ````
+       sudo docker run -d -p8000:8000 diarization:latest
+       ````
+--> Check FastAPI Docs at [localhost:8000/docs](localhost:8000/docs) or [localhost:8000/redoc](localhost:8000/redoc)
 
-Otherwise:
-1. Create a virtual environment (python 3.10)
-2. Install requirements from requirements.txt with pip install -r requirements.txt
+**Directly from the command line:**
+1. Clone the git repository:
+    ````
+    $ git clone https://github.com/nina-prog/sem-biosignals-ecg-feature-processing-api.git
+    ````
+2. Navigate to the cloned repository:
+    ````
+    $ cd sem-biosignals-ecg-feature-processing-api
+    ````
+3. Create a virtual environment (python 3.10)  using the following command in the terminal: 
+    ````
+    $ python3 -m venv venv
+    ````
+4. Install requirements from requirements.txt using the following command in the terminal:
+    ````
+    $ pip install -r requirements.txt
+    ````
+5. Start the FastAPI app by running the following command in the terminal: 
+    ````
+    $ uvicorn main:app --reload --port 8000 --host 
+    ````
+--> Check FastAPI Docs at [localhost:8000/docs](localhost:8000/docs) or [localhost:8000/redoc](localhost:8000/redoc)
+
+# Tutorial
 
 # Outlook
 * Add parameter "feature_selection" (str or list[EnumFeatures], default=all) to input class ECGBatch: select features 
-which shuold be computed. *Example: list: [feature_x, feature_y, feature_z]; str: "HRV" -> computes defined "basic" HRV Features,
-"default" -> computes all features, "time-domain" -> computes only time domain features*
-* Add new route "preprocess_ecg_data" to main.py: only execute preprocessing part of the application and do not compute the features.
+which shuold be computed. *Example: list: [feature_x, feature_y, feature_z]; str: "HRV" -> computes defined "basic" HRV 
+Features, "default" -> computes all features, "time-domain" -> computes only time domain features*
+* Add new route "preprocess_ecg_data" to main.py: only execute preprocessing part of the application and do not compute 
+the features.
+
+# Documentation
+* [FastAPI](https://fastapi.tiangolo.com/)
+* [Pydantic](https://pydantic-docs.helpmanual.io/)
+
+# References
+
+# Authors
+
+# License
+
+# Contact
