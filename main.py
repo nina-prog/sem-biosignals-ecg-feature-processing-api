@@ -4,7 +4,13 @@ from datetime import datetime, date
 from pydantic import BaseModel, Field, root_validator, validator
 import pandas as pd
 from uuid import UUID, uuid4
-from enum import Enum
+
+from tqdm import tqdm
+import neurokit2 as nk
+
+import src.feature_extraction as fe
+import src.preprocessing as pp
+import src.configs as cfg
 
 
 # pydantic models
@@ -30,11 +36,10 @@ class ECGSample(BaseModel):
             }
         }
 
-    # NOTE: label not relevant, TBD
     @validator('label', pre=True, always=True)
     def set_label_default(cls, v, values):
         """
-        Set default for list parameter "label" if not already given.
+        Set default for list parameter "label" if list has empty values.
         :param v: The input value of the field being validated.
         :type v: Any
         :param values: The input values that have already been validated.
@@ -64,9 +69,25 @@ class ECGSample(BaseModel):
         return values
 
 
-class SignalEnum(str, Enum):
-    chest = 'chest'
-    wrest = 'wrest'
+class ECGConfig(BaseModel):
+    """ Model of the configuration of an experiment with ECG biosignals. """
+    device_name: str = Field(example="bioplux", default=None)
+    frequency: int = Field(..., example=1000)
+    signal: cfg.SignalEnum = Field(example=cfg.SignalEnum.chest, default=None)
+    window_slicing_method: cfg.WindowSlicingMethodEnum = Field(example=cfg.WindowSlicingMethodEnum.time_related,
+                                                               default=cfg.WindowSlicingMethodEnum.time_related)
+    window_size: float = Field(example=1.0, default=5.0)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "device_name": "bioplux",
+                "frequency": 1000,
+                "signal": cfg.SignalEnum.chest,
+                "window_slicing_method": cfg.WindowSlicingMethodEnum.time_related,
+                "window_size": 5.0
+            }
+        }
 
 
 class ECGBatch(BaseModel):
@@ -77,9 +98,8 @@ class ECGBatch(BaseModel):
     # an int or float as a string (assumed as Unix timestamp), or
     # o string representing the date (e.g. "YYYY-MM-DD")
     record_date: date = Field(example="2034-01-16", default_factory=date.today())
-    samples: list[ECGSample]
-    configs: dict = Field(example={"device_name": "bioplux", "frequency": 400, "signal": SignalEnum.chest},
-                          default=None)
+    configs: ECGConfig = Field(..., example=ECGConfig())
+    samples: list[ECGSample] = Field(..., min_items=2, example=[ECGSample(), ECGSample()])
 
     class Config:
         schema_extra = {
@@ -88,8 +108,10 @@ class ECGBatch(BaseModel):
                 "record_date": "2034-01-16",
                 "configs": {
                     "device_name": "bioplux",
-                    "frequency": 400,
-                    "signal": SignalEnum.chest
+                    "frequency": 1000,
+                    "signal": cfg.SignalEnum.chest,
+                    "window_slicing_method": cfg.WindowSlicingMethodEnum.time_related,
+                    "window_size": 5.0
                 },
                 "samples": [
                     {
@@ -105,12 +127,6 @@ class ECGBatch(BaseModel):
                 ]
             }
         }
-
-
-class ECGFeatures(BaseModel):
-    """ Response Model for Data Validation. The Response being the results of the Feature Processing of the given
-    Input. """
-    message: str = "test"
 
 
 # initialize an instance of FastAPI
@@ -129,40 +145,51 @@ def root():
 
 
 # feature processing route (json)
-@app.post("/process_ecg_features", response_model=ECGFeatures, status_code=200)
+@app.post("/process_ecg_features", status_code=200)
 def process_features(data: ECGBatch):
     """
     Run feature processing.
+
     :param data: The input data.
     :type data: ECGBatch (JSON)
+
     :return: The features processed by the given input data.
     :rtype: ECGFeatures (JSON)
     """
-    # to pandas / numpy
-    data_df = pd.json_normalize(data.__dict__)
-    data_df = pd.DataFrame(data.dict()).explode(['samples'])
-    # clean data
-    # extract features
-    # combine data
-    ecg_features = ECGFeatures()
-    return ecg_features
+    # to dict from json
+    ecg_batch = data.__dict__
+    # get configs
+    configs = ecg_batch['configs']
+    # get window size
+    window_size = configs['window_size']
+    # get window slicing method
+    window_slicing_method = configs['window_slicing_method']
 
+    features_df = pd.DataFrame()
+    # iterate over samples of ecg batch
+    for sample in tqdm(ecg_batch['samples']):
+        # convert to pandas
+        sample_df = pd.json_normalize(sample).explode(['timestamp_idx', 'ecg', 'label'])
+        # preprocess ecg
+        sample_df['ecg'] = nk.ecg_clean(sample_df['ecg'], sampling_rate=configs['frequency'], method="pantompkins1985")
+        # slice in windows (window_size and window_slicing_method)
+        windows = fe.create_windows(sample_df, 'timestamp_idx', window_size, window_slicing_method)
+        print(f'Number of windows: {len(list(windows))}')
+        # compute ecg features vor each window https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8203359/
+        for i, window in enumerate(windows):
+            # compute features
+            features = fe.hrv_features(window['ecg'].values, configs['frequency'])
+            # Create a DataFrame for the features
+            tmp = pd.DataFrame(features, index=[0])
+            # Add additional columns
+            tmp['sample_id'] = sample['sample_id'].unique()
+            tmp['subject_id'] = sample['subject_id'].unique()
+            tmp['window_id'] = i
+            tmp['w_start_time'] = window['timestamp_idx'].min()
+            tmp['W_end_time'] = window['timestamp_idx'].max()
+            # add new window features to df of all
+            features_df = pd.concat([features_df, tmp], axis=0)
 
-# optional ############################################################################################################
+    features_df.reset_index(drop=True, inplace=True)
 
-
-# feature processing route (csv)
-@app.post("/csv/process_ecg_features")
-def csv_process_features(file: UploadFile = File(...)):
-    """
-    Run feature processing and return results combined in a csv.
-    :param file: The input data.
-    :type file: file (csv)
-    :return: A file containing the features processed by using the input data.
-    :rtype: file (csv)
-    """
-    df = pd.read_csv(file.file)
-    file.file.close()
-    return {"filename": file.filename}
-
-
+    return features_df.to_json(orient='records')

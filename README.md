@@ -3,13 +3,14 @@
 
 To-Do
 ---
-* [ ] Eigene Daten testen 
-* [ ] Pipeline in FastAPI überführen und Funktionen kapseln
-* [ ] „Windows schneiden“ Ablauf 
-* [ ] Weitere Feature ausprobieren 
-* [ ] Kommentare vervollständigen (wenn noch nicht vorhanden)
+* [-] Eigene Daten testen 
+* [x] Pipeline in FastAPI überführen und Funktionen kapseln
+* [x] „Windows schneiden“ Ablauf in Pipeline integrieren
+* [ ] „Windows schneiden“ Funktion erweitern, sodass auch die Labels geschnitten werden
+* [ ] Features verbessern
+* [x] Kommentare vervollständigen (wenn noch nicht vorhanden)
 ---
-* [ ] Add description of the output data
+* [x] Add description of the output data
 * [ ] Add description of the pipeline framework
 * [ ] Add description of the pipeline documentation
 * [ ] Add description of the pipeline references
@@ -62,7 +63,8 @@ Short Overview:
 * Input (plus device): *...TBD...*
 * Output: *...TBD...*
 * Input data form: JSON implementing ECGBatch and ECGSample models. See [below](#input-data-form) for more details. 
-* Output data form: *...TBD...* See [below](#output-data-form) for more details.
+* Output data form: JSON implementing a Pandas DataFrame containing the HRV features for each window for each sample given in the 
+batch. See [below](#output-data-form) for more details.
 
 ## Input Data Form
 Examples for the Input are implemented in the code and can be seen when running the api via the /docs user interface. 
@@ -105,6 +107,31 @@ also enables someone to use this example as default input to test the routes, so
 new example.
 
 ## Output Data Form
+The output data is a Pandas DataFrame containing the HRV features for each window for each sample given in the batch. This is then converted to a simple records JSON format. The DataFrame has the following columns: 
+
+| **Column** | **Type** | **Description** |
+|-----------|----------|-----------------|
+| sample_id | str      | ID of the sample. |
+| subject_id | str      | ID of the subject. |
+| window_id | int      | ID of the window. |
+| w_start_time | datetime      | Start time of the window. |
+| w_end_time | datetime      | End time of the window. |
+| mean_rr | float      | Mean RR interval in the window. |
+| sdnn | float      | Standard deviation of the RR intervals in the window. |
+| rmssd | float      | Root mean square of the successive differences of the RR intervals in the window. |
+| nn50 | int      | Number of successive differences of the RR intervals in the window that are greater than 50 ms. |
+| pnn50 | float      | Percentage of successive differences of the RR intervals in the window that are greater than 50 ms. |
+| lf_band | float      | Power of the low frequency band in the window. |
+| hf_band | float      | Power of the high frequency band in the window. |
+| lf_hf_ratio | float      | Ratio of the low frequency band power to the high frequency band power in the window. |
+
+**Dataframe Example:**
+
+![img.png](figures/img.png)
+
+**Outlook:** Add more columns for the HRV features, such as:
+* rr | list[float]      | List of RR intervals in the window.
+* rpeaks | list[int]      | List of R-peak indices in the window.
 
 # Requirenments
 See in file [requirements.txt](requirements.txt)
