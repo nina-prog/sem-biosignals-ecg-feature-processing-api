@@ -1,0 +1,160 @@
+{
+    "supervisor": "Lieschen Mueller",
+    "record_date": "2034-01-16",
+    "configs": {
+        "window_size": 5.0,
+        "window_slicing_method": "time_related",
+        "signal": "chest",
+        "device_name": "bioplux",
+        "frequency": 360
+    },
+    "samples": [
+        {
+            "sample_id": "f70c1033-36ae-4b8b-8b89-099a96dccca5",
+            "subject_id": "participant_1",
+            "timestamp_idx": [
+                1679709871,
+                1679713471,
+                1679720671,
+                1679724071,
+                1679727471,
+                1679730871,
+                1679734271,
+                1679737671,
+                1679741071,
+                1679744471,
+                1679747871,
+                1679751271,
+                1679754671
+            ],
+            "ecg": [
+                1.0,
+                -1.100878,
+                -3.99684,
+                0.5,
+                -2.345,
+                1.234,
+                -0.987,
+                2.345,
+                -1.234,
+                0.5,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "label": [
+                "undefined",
+                "stress",
+                "undefined",
+                "undefined",
+                "calm",
+                "undefined",
+                "stress",
+                "calm",
+                "undefined",
+                "stress",
+                "undefined",
+                "undefined",
+                "undefined"
+            ]
+        },
+        {
+            "sample_id": "sample_id_2",
+            "subject_id": "participant_2",
+            "timestamp_idx": [
+                1679709871,
+                1679713471,
+                1679720671,
+                1679724071,
+                1679727471,
+                1679730871,
+                1679734271,
+                1679737671,
+                1679741071,
+                1679744471,
+                1679747871,
+                1679751271,
+                1679754671
+            ],
+            "ecg": [
+                1.2,
+                -1.567,
+                -3.456,
+                0.7,
+                -2.789,
+                1.876,
+                -0.345,
+                2.567,
+                -1.876,
+                0.7,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "label": [
+                "undefined",
+                "stress",
+                "undefined",
+                "calm",
+                "undefined",
+                "stress",
+                "calm",
+                "undefined",
+                "stress",
+                "undefined",
+                "undefined",
+                "undefined",
+                "undefined"
+            ]
+        },
+        {
+            "sample_id": "sample_id_3",
+            "subject_id": "participant_3",
+            "timestamp_idx": [
+                1679709871,
+                1679713471,
+                1679720671,
+                1679724071,
+                1679727471,
+                1679730871,
+                1679734271,
+                1679737671,
+                1679741071,
+                1679744471,
+                1679747871,
+                1679751271,
+                1679754671
+            ],
+            "ecg": [
+                0.8,
+                -1.234,
+                -3.789,
+                0.9,
+                -2.567,
+                1.456,
+                -0.234,
+                2.789,
+                -1.456,
+                0.9,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "label": [
+                "undefined",
+                "calm",
+                "stress",
+                "undefined",
+                "stress",
+                "undefined",
+                "calm",
+                "undefined",
+                "stress",
+                "undefined",
+                "undefined",
+                "undefined",
+                "undefined"
+            ]
+        }
+    ]
+}
