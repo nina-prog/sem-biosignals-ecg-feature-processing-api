@@ -3,14 +3,9 @@
 
 To-Do
 ---
-* [-] Eigene Daten testen 
-* [x] Pipeline in FastAPI überführen und Funktionen kapseln
-* [x] „Windows schneiden“ Ablauf in Pipeline integrieren
 * [ ] „Windows schneiden“ Funktion erweitern, sodass auch die Labels geschnitten werden
 * [ ] Features verbessern
-* [x] Kommentare vervollständigen (wenn noch nicht vorhanden)
 ---
-* [x] Add description of the output data
 * [ ] Add description of the pipeline framework
 * [ ] Add description of the pipeline documentation
 * [ ] Add description of the pipeline references
@@ -62,9 +57,10 @@ user can upload ECG data and receive the HRV features.
 Short Overview:
 * Input (plus device): *...TBD...*
 * Output: *...TBD...*
-* Input data form: JSON implementing ECGBatch and ECGSample models. See [below](#input-data-form) for more details. 
+* Input data form: JSON implementing ECGBatch and ECGSample models. See [below](#input-data-form) for more details and 
+an example is given in [the data directory](/data/example1_input.json).
 * Output data form: JSON implementing a Pandas DataFrame containing the HRV features for each window for each sample given in the 
-batch. See [below](#output-data-form) for more details.
+batch. See [below](#output-data-form) for more details and an example is given in [the data directory](/data/example1_output.json).
 
 ## Input Data Form
 Examples for the Input are implemented in the code and can be seen when running the api via the /docs user interface. 
@@ -76,13 +72,13 @@ electrocardiogram (ECG) biosignals.
 **ECGBatch** is a model for representing a batch of ECG data from multiple subjects in an experiment. It has the 
 following attributes:
 
-| **ECGBatch**  | ****            | ****         | ****            | ****                                                                                                  |
-|---------------|-----------------|--------------|-----------------|-------------------------------------------------------------------------------------------------------|
-| **Parameter** | **Type**        | **Optional** | **Constraints** | **Description**                                                                                       |
-| supervisor    | str             | False        | N/A             | Name of the supervisor who conducted the experiment.                                                  |
-| record_date   | date            | False        | N/A             | Date on which the ECG data was recorded. If not provided, the current date is set as the default.     |
-| samples       | list[ECGSample] | False        | N/A             | A list of ECGSample objects representing the results of the experiment for all subjects.              |
-| configs       | dict or None    | True         | N/A             | A dictionary containing the configuration settings used during the experiment. Default value is None. |
+| **ECGBatch**  | ****            | ****         | ****            | ****                                                                                              |
+|---------------|-----------------|--------------|-----------------|---------------------------------------------------------------------------------------------------|
+| **Parameter** | **Type**        | **Optional** | **Constraints** | **Description**                                                                                   |
+| supervisor    | str             | False        | N/A             | Name of the supervisor who conducted the experiment.                                              |
+| record_date   | date            | False        | N/A             | Date on which the ECG data was recorded. If not provided, the current date is set as the default. |
+| samples       | list[ECGSample] | False        | N/A             | A list of ECGSample objects representing the results of the experiment for all subjects.          |
+| configs       | ECGConfig       | True         | N/A             | A ECGConfig object containing the configuration settings used during the experiment.              |
 
 **ECGSample** is a model for representing the results of a single subject in an ECG experiment. It has the following 
 attributes:
@@ -99,6 +95,17 @@ attributes:
 | Config            | Class configuration options | False        | N/A             | Additional options for the class configuration, such as defining an example value for the model.                                                                                                      |
 | set_label_default | Validator function          | N/A          | N/A             | A function that sets a default value for the label list parameter.                                                                                                                                    |
 | check_length      | Validator function          | N/A          | N/A             | A function that checks that all list parameters have the same length.                                                                                                                                 |
+
+**ECGConfig** is a model for representing the configuration settings used during an ECG experiment. It has the following attributes:
+
+| **ECGConfig**            | ****           | ****         | ****            | ****                                                                                              |
+|--------------------------|----------------|--------------|-----------------|---------------------------------------------------------------------------------------------------|
+| **Parameter**            | **Type**       | **Optional** | **Constraints** | **Description**                                                                                   |
+| device_name              | str or None    | True         | N/A             | Name of the device used to record the ECG data.                                                   |
+| frequency                | int            | False        | N/A             | Sampling frequency of the ECG data.                                                               |
+| signal                   | str or None    | True         | N/A             | Name of the ECG signal. Must be a predefined Enum constant in configs.py.                         |
+| window_slicing_method    | str or None    | True         | N/A             | Method used to slice the ECG data into windows. Must be a predefined Enum constant in configs.py. |                          |
+| window_size              | int or None    | True         | N/A             | Size of the window used to calculate the HRV features.                                            |
 
 The models use Pydantic's validation features, such as Field and validator, to ensure that the input data meets certain 
 requirements, such as the length of the timestamp_idx, ecg, and label lists being the same. The Config class in each 
@@ -198,12 +205,11 @@ See in file [requirements.txt](requirements.txt)
 * Add parameter "feature_selection" (str or list[EnumFeatures], default=all) to input class ECGBatch: select features 
 which shuold be computed. *Example: list: [feature_x, feature_y, feature_z]; str: "HRV" -> computes defined "basic" HRV 
 Features, "default" -> computes all features, "time-domain" -> computes only time domain features*
-* Add new route "preprocess_ecg_data" to main.py: only execute preprocessing part of the application and do not compute 
-the features.
 
 # Documentation
 * [FastAPI](https://fastapi.tiangolo.com/)
 * [Pydantic](https://pydantic-docs.helpmanual.io/)
+* [Docker](https://docs.docker.com/)
 
 # References
 
