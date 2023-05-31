@@ -6,8 +6,7 @@ import pandas as pd
 
 def create_windows(df, time_column, window_size=5.0, window_slicing_method='time_related'):
     """
-    Slices a dataframe into windows of a given size. The windows can be sliced in different ways. The windows are
-    returned as a generator of dataframes. The dataframe must have a column containing timestamps and be indexed by it.
+    Slices a dataframe into windows of a given size. The windows can be sliced in different ways. The windows are returned as a generator of dataframes. The dataframe must have a column containing timestamps and be indexed by it.
 
     :param df: The dataframe to slice.
     :type df: pandas.DataFrame

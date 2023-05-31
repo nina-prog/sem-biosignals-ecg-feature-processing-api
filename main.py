@@ -154,12 +154,15 @@ def process_features(data: ECGBatch):
     :type data: ECGBatch (JSON)
 
     :return: The features processed by the given input data.
-    :rtype: ECGFeatures (JSON)
+    :rtype:  JSON
     """
-    # to dict from json
-    ecg_batch = data.__dict__
+
+    # Possible TO-DO: Need to do either data.dict() or data.json() or none
+
     # get configs
-    configs = ecg_batch['configs']
+    configs = data['configs']
+    # get single sample
+    samples = data['samples']
     # get window size
     window_size = configs['window_size']
     # get window slicing method
@@ -167,9 +170,9 @@ def process_features(data: ECGBatch):
 
     features_df = pd.DataFrame()
     # iterate over samples of ecg batch
-    for sample in tqdm(ecg_batch['samples']):
+    for sample in tqdm(samples):
         # convert to pandas
-        sample_df = pd.json_normalize(sample).explode(['timestamp_idx', 'ecg', 'label'])
+        sample_df = pd.DataFrame.from_dict(sample)
         # preprocess ecg
         sample_df['ecg'] = nk.ecg_clean(sample_df['ecg'], sampling_rate=configs['frequency'], method="pantompkins1985")
         # slice in windows (window_size and window_slicing_method)
@@ -182,8 +185,8 @@ def process_features(data: ECGBatch):
             # Create a DataFrame for the features
             tmp = pd.DataFrame(features, index=[0])
             # Add additional columns
-            tmp['sample_id'] = sample['sample_id'].unique()
-            tmp['subject_id'] = sample['subject_id'].unique()
+            tmp['subject_id'] = sample['subject_id']
+            tmp['sample_id'] = sample['sample_id']
             tmp['window_id'] = i
             tmp['w_start_time'] = window['timestamp_idx'].min()
             tmp['W_end_time'] = window['timestamp_idx'].max()
@@ -191,5 +194,6 @@ def process_features(data: ECGBatch):
             features_df = pd.concat([features_df, tmp], axis=0)
 
     features_df.reset_index(drop=True, inplace=True)
+    features_json = features_df.to_json(orient='records')
 
-    return features_df.to_json(orient='records')
+    return features_json
